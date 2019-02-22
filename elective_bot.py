@@ -184,7 +184,7 @@ class ElectiveBot:
         self.status='loop'
         self.last_loop_time=time.time()
         try:
-            res=self.loop_()
+            res=self.loop_() or []
         except Exception as e:
             self.log('warning',f'loop error {type(e)} {str(e)}')
             return []
@@ -230,6 +230,7 @@ class ElectiveBot:
 
     def enter_captcha(self,tk,should_autoinput=False):
         tl=tkinter.Toplevel(tk)
+        tl.wm_attributes('-toolwindow',True)
         tl.title(f'Captcha for {self.name}')
 
         captcha_var=tkinter.StringVar(tl)
@@ -253,6 +254,7 @@ class ElectiveBot:
             img=self.get_captcha()
             label._image=ImageTk.PhotoImage(img)
             label['image']=label._image
+            tl.update_idletasks()
             if should_autoinput:
                 try:
                     result=self.captcha_recognizer.recognize(img)

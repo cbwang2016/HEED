@@ -22,6 +22,8 @@ setup(name='HEED',
       options = dict(build_exe = buildOptions),
       executables = executables)
 
+shutil.copyfile('c:/program files/python36/dlls/tk86t.dll','build/exe.win-amd64-3.6/tk86t.dll')
+shutil.copyfile('c:/program files/python36/dlls/tcl86t.dll','build/exe.win-amd64-3.6/tcl86t.dll')
 shutil.copyfile('error.png','build/exe.win-amd64-3.6/error.png')
 shutil.copyfile('README.html','build/exe.win-amd64-3.6/README.html')
 #'''

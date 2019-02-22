@@ -18,10 +18,11 @@ class Orchestrator:
     INTERVAL_MS=3000
 
     def __init__(self):
-        self.name='-Orchestrator'
+        self.name='Orchestrator'
         self.status='idle'
         self.log=Logger(self.name)
 
+        self.bot_id_top=0
         self.bots=[]
         self.courses=[]
         self.courses_display={}
@@ -35,8 +36,8 @@ class Orchestrator:
         self.init_main_window()
         self.update_wish_var()
 
-        auth['username']=simpledialog.askstring('Auth', 'Username')
-        auth['password']=simpledialog.askstring('Auth', 'Password', show='*')
+        auth['username']=simpledialog.askstring('Auth','Username')
+        auth['password']=simpledialog.askstring('Auth','Password',show='*')
 
         self.init_logging_window()
 
@@ -101,8 +102,11 @@ class Orchestrator:
     def course_update_worker(self):
         while True:
             bot,courses=self.course_update_q.get(block=True)
-            self.update_course_list(bot,courses)
-            self.check_wish(bot,courses)
+            if courses:
+                self.update_course_list(bot,courses)
+                self.check_wish(bot,courses)
+            else:
+                self.log('debug','loop get no courses')
 
     def check_wish(self,bot,courses):
         courses=courses[:]
@@ -129,7 +133,7 @@ class Orchestrator:
         tl.title('Logging Window')
         tl.rowconfigure(0,weight=1)
         tl.columnconfigure(1,weight=1)
-        tl.lower()
+        tk.tkraise(tl)
 
         li_var=StringVar()
         li_items=[]
@@ -147,18 +151,19 @@ class Orchestrator:
                 text_lid_end=0
                 log_q.put(None)
                 log_q.put(cur_select.name)
+                tl.title(f'Logging Window - {cur_select.name}')
 
         li=Listbox(tl,listvariable=li_var)
         li.bind('<<ListboxSelect>>',onselect)
         li.grid(row=0,column=0,sticky='ns')
-        text=ScrolledText(tl)
+        text=ScrolledText(tl,width=70)
         text.grid(row=0,column=1,sticky='nswe')
 
         text.tag_config('time',foreground='black')
         text.tag_config('debug',foreground='gray')
         text.tag_config('info',foreground='blue')
         text.tag_config('warning',background='yellow')
-        text.tag_config('critical',background='red')
+        text.tag_config('critical',background='red',foreground='white')
 
         text_lid_begin=0
         text_lid_end=0
@@ -199,7 +204,8 @@ class Orchestrator:
         def add_bot():
             should_auto_captcha=auto_captcha_var.get()=='on'
             def do_add_bot():
-                name=f'Bot {len(self.bots)+1}'
+                self.bot_id_top+=1
+                name=f'Bot {self.bot_id_top}'
                 self.log('info',f'add {name}')
                 bot=ElectiveBot(name)
                 self.bots.append(bot)
@@ -232,6 +238,9 @@ class Orchestrator:
         Button(btnpanel,text='Add Bot',command=add_bot).grid(row=0,column=0)
         if captcha.loaded:
             Checkbutton(btnpanel,text='Auto Captcha',variable=auto_captcha_var,onvalue='on',offvalue='off').grid(row=0,column=1)
+            auto_captcha_var.set('on')
+        else:
+            Checkbutton(btnpanel,text='Auto Captcha',variable=auto_captcha_var,onvalue='on',offvalue='off',state=['disabled']).grid(row=0,column=1)
         Button(btnpanel,text='Refresh',command=self.refresh).grid(row=0,column=2)
         Checkbutton(btnpanel,text='Auto Refresh',command=ref_changed,variable=auto_refresh_var,onvalue='on',offvalue='off').grid(row=0,column=3)
 
@@ -245,11 +254,11 @@ class Orchestrator:
             self.log('info',f'change to interval {self.INTERVAL_MS}ms timeout {int(TIMEOUT_S*1000)}ms')
 
         Label(btnpanel,text=' Interval').grid(row=0,column=4)
-        interval_entry=Entry(btnpanel,textvariable=interval_var,width=8)
+        interval_entry=Entry(btnpanel,textvariable=interval_var,width=7)
         interval_entry.bind('<Return>',change_time_config)
         interval_entry.grid(row=0,column=5)
         Label(btnpanel,text=' Timeout').grid(row=0,column=6)
-        timeout_entry=Entry(btnpanel,textvariable=timeout_var,width=8)
+        timeout_entry=Entry(btnpanel,textvariable=timeout_var,width=7)
         timeout_entry.bind('<Return>',change_time_config)
         timeout_entry.grid(row=0,column=7)
 
@@ -271,11 +280,11 @@ class Orchestrator:
         self.tree.heading('elected_cnt',text='Elected')
         self.tree.heading('status',text='Status')
 
-        self.tree.column('#0',width=350,anchor='w')
+        self.tree.column('#0',width=250,anchor='w')
         self.tree.column('teacher',width=200,anchor='w')
         self.tree.column('volume_cnt',width=50,anchor='e')
         self.tree.column('elected_cnt',width=50,anchor='e')
-        self.tree.column('status',width=100,anchor='e')
+        self.tree.column('status',width=80,anchor='e')
 
         self.tree.bind('<Double-Button-1>',lambda e: self.manual_select())
 
