@@ -34,7 +34,7 @@ class Logger:
         self.lid_begin=0
         self.lid_end=0
         self.lock=threading.Lock()
-        self('info', 'log start')
+        self('info', 'HEED by @xmcp')
 
     def __call__(self,typ,msg):
         if not self.VERBOSE and typ=='debug':
@@ -189,7 +189,8 @@ class ElectiveBot:
             self.log('warning',f'loop error {type(e)} {str(e)}')
             return []
         else:
-            self.log('info','loop ok')
+            if res:
+                self.log('info','loop ok')
             return res
         finally:
             self.status='idle'

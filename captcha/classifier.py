@@ -23,13 +23,13 @@ def __get_Model_Files():
         r"(?P<ext>\.z|\.gz|\.bz2|\.xz|\.lzma)$", re.I)
 
     model_files = {}
-    for file in os.listdir('captcha/model'):
+    for file in os.listdir('model'):
         res = regex_model_filename.match(file)
         if res is not None:
             filename = res.group()
             resDict = res.groupdict()
             alg = resDict.pop("alg")
-            resDict["path"] = os.path.abspath(os.path.join('captcha/model', filename))
+            resDict["path"] = os.path.abspath(os.path.join('model', filename))
             model_files[alg] = resDict
 
     return model_files

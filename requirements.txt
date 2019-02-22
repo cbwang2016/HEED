@@ -3,3 +3,4 @@ beautifulsoup4
 pillow
 sklearn
 tkinter
+lxml

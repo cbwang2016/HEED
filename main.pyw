@@ -13,8 +13,6 @@ tk.rowconfigure(1,weight=1)
 tk.columnconfigure(0,weight=1)
 
 tk.update_idletasks()
-auth['username']=simpledialog.askstring('Auth','Username')
-auth['password']=simpledialog.askstring('Auth','Password')
 
 class Orchestrator:
     INTERVAL_MS=3000
@@ -35,15 +33,17 @@ class Orchestrator:
         self.tree=None
 
         self.init_main_window()
-        self.init_logging_window()
         self.update_wish_var()
+
+        auth['username']=simpledialog.askstring('Auth', 'Username')
+        auth['password']=simpledialog.askstring('Auth', 'Password', show='*')
+
+        self.init_logging_window()
 
         self.auto_id=None
         self.auto_on=False
         self.course_update_q=queue.Queue()
         threading.Thread(target=self.course_update_worker,daemon=True).start()
-
-        self.log('info','init complete')
 
     def preload_wishlist(self):
         if os.path.isfile('wishlist.txt'):
@@ -111,7 +111,7 @@ class Orchestrator:
         for course in courses:
             in_wishlist=(course['name'], course['classid']) in self.wishlist
             if in_wishlist and course['elected_cnt']<course['volume_cnt']:
-                self.log('info', f'auto select {course["name"]} {course["classid"]}')
+                self.log('info',f'auto select {course["name"]} {course["classid"]}')
 
                 def callback(ok,reason):
                     if ok:
@@ -129,6 +129,7 @@ class Orchestrator:
         tl.title('Logging Window')
         tl.rowconfigure(0,weight=1)
         tl.columnconfigure(1,weight=1)
+        tl.lower()
 
         li_var=StringVar()
         li_items=[]
@@ -224,12 +225,13 @@ class Orchestrator:
             if self.auto_on:
                 self.refresh()
 
-        auto_captcha_var=StringVar(tk,value='on')
+        auto_captcha_var=StringVar(tk,value='off')
         auto_refresh_var=StringVar(tk,value='off')
         verbose_var=StringVar(tk,value='on' if Logger.VERBOSE else 'off')
 
         Button(btnpanel,text='Add Bot',command=add_bot).grid(row=0,column=0)
-        Checkbutton(btnpanel,text='Auto Captcha',variable=auto_captcha_var,onvalue='on',offvalue='off').grid(row=0,column=1)
+        if captcha.loaded:
+            Checkbutton(btnpanel,text='Auto Captcha',variable=auto_captcha_var,onvalue='on',offvalue='off').grid(row=0,column=1)
         Button(btnpanel,text='Refresh',command=self.refresh).grid(row=0,column=2)
         Checkbutton(btnpanel,text='Auto Refresh',command=ref_changed,variable=auto_refresh_var,onvalue='on',offvalue='off').grid(row=0,column=3)
 

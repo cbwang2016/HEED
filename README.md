@@ -1,15 +1,18 @@
 # HEED
-High Efficiency Elective Dominator for PKU
+High Efficiency Elective Dominator for PKU students
 
-## Instruction
+## Setup
 
 1. Install Python 3.6+
 2. `pip install -r requirements.txt`
-3. Launch `main.pyw`
-4. Input username and password
-5. Click `Add Bot`
-6. Click `Refresh`
-7. Double-click in the course list to elect it or add it to wishlist
-8. Double-click in the wishlist to remove it
-9. Toggle `Auto Refresh`
-10. See result in `Logging Window`
+
+## Usage
+
+1. Launch `main`
+2. Input username and password *(password will be shown in plain text)*
+3. Click `Add Bot` for one or several times
+4. Click `Refresh`
+5. Double-click in the course list to elect it or add it to wishlist
+6. Double-click in the wishlist to remove it
+7. Toggle `Auto Refresh`
+8. See result in `Logging Window`
