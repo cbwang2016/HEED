@@ -3,6 +3,7 @@ from tkinter.ttk import *
 from tkinter import messagebox, simpledialog
 from tkinter.scrolledtext import ScrolledText
 import threading
+import os
 
 from elective_bot import *
 
@@ -27,8 +28,10 @@ class Orchestrator:
         self.courses=[]
         self.courses_display={}
         self.wishlist=[]
+        self.preload_wishlist()
 
         self.wish_var=StringVar(tk)
+        self.update_wish_var()
         self.tree=None
 
         self.init_main_window()
@@ -41,6 +44,13 @@ class Orchestrator:
         threading.Thread(target=self.course_update_worker,daemon=True).start()
 
         self.log('info','init complete')
+
+    def preload_wishlist(self):
+        if os.path.isfile('wishlist.txt'):
+            self.log('info','preload wishlist')
+            with open('wishlist.txt','r',encoding='utf-8') as f:
+                lines=[(name,classid) for l in filter(None,f.read().split('\n')) for name,_,classid in [l.rpartition(' ')]]
+            self.wishlist=lines
 
     def choose_bot(self):
         candidates=list(filter(lambda bot:bot.status=='idle',self.bots))
