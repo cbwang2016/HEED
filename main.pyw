@@ -53,6 +53,13 @@ class Orchestrator:
                 lines=[(name,classid) for l in filter(None,f.read().split('\n')) for name,_,classid in [l.rpartition(' ')]]
             self.wishlist=lines
 
+    def remove_wishlist_by_name(self,target_name):
+        for name,classid in self.wishlist[:]:
+            if name==target_name:
+                self.wishlist.remove((name,classid))
+                self.log('info',f'remove from wishlist {name} {classid}')
+        self.update_wish_var()
+
     def choose_bot(self):
         candidates=list(filter(lambda bot:bot.status=='idle',self.bots))
         if not candidates:
@@ -70,7 +77,9 @@ class Orchestrator:
 
                 if bot.status=='idle':
                     def callback(ok,reason):
-                        self.log('info' if ok else 'warning',reason)
+                        self.log('success' if ok else 'warning',reason)
+                        if ok:
+                            self.remove_wishlist_by_name(course['name'])
                     bot.select(course['selecturl'],callback)
                 else:
                     self.log('warning',f'cannot select bot status is {bot.status}')
@@ -119,10 +128,8 @@ class Orchestrator:
 
                 def callback(ok,reason):
                     if ok:
-                        self.log('info',reason)
-                        self.log('debug',f'remove from wishlist {course["name"]} {course["classid"]}')
-                        self.wishlist.remove((course['name'],course['classid']))
-                        self.update_wish_var()
+                        self.log('success',reason)
+                        self.remove_wishlist_by_name(course['name'])
                     else:
                         self.log('warning',reason)
                 bot.select(course['selecturl'],callback)
@@ -163,6 +170,7 @@ class Orchestrator:
         text.tag_config('debug',foreground='gray')
         text.tag_config('info',foreground='blue')
         text.tag_config('warning',background='yellow')
+        text.tag_config('success',background='#00ff00')
         text.tag_config('critical',background='red',foreground='white')
 
         text_lid_begin=0
