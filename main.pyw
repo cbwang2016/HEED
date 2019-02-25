@@ -27,6 +27,7 @@ class Orchestrator:
         self.courses=[]
         self.courses_display={}
         self.wishlist=[]
+        self.wishlist_busy=set()
         self.preload_wishlist()
 
         self.wish_var=StringVar(tk)
@@ -126,14 +127,23 @@ class Orchestrator:
             if in_wishlist and course['elected_cnt']<course['volume_cnt']:
                 self.log('info',f'auto select {course["name"]} {course["classid"]}')
 
+                shadowed_list=[(name,classid) for name,classid in self.wishlist if name==course['name']]
+                self.wishlist_busy.update(shadowed_list)
+                self.log('debug',f'shadowing {" ".join(map(repr,shadowed_list))}')
+                self.update_wish_var()
+
                 def callback(ok,reason):
                     if ok:
                         self.log('success',reason)
                         self.remove_wishlist_by_name(course['name'])
                     else:
                         self.log('warning',reason)
+
+                    self.wishlist_busy.difference_update(shadowed_list)
+                    self.update_wish_var()
+
                 bot.select(course['selecturl'],callback)
-                return
+                return # select only one course at once
 
     def init_logging_window(self):
         tl=Toplevel(tk)
@@ -309,7 +319,7 @@ class Orchestrator:
         wish_box.grid(row=1,column=2,sticky='ns')
 
     def update_wish_var(self):
-        self.wish_var.set(tuple(f'{course[0]} {course[1]}' for course in self.wishlist))
+        self.wish_var.set(tuple(f'{"* " if course in self.wishlist_busy else ""}{course[0]} {course[1]}' for course in self.wishlist))
 
     def update_course_list(self,bot,courses):
         self.tree.delete(*self.tree.get_children())

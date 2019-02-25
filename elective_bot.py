@@ -261,9 +261,10 @@ class ElectiveBot:
                     assert len(result.code)==4, f'bad recognized result {result.code}'
                     self.log('debug',f'recognized captcha {result.code}')
                     captcha_var.set(result.code)
-                    submit_captcha(auto_skip=True)
+                    tl.after_idle(lambda: submit_captcha(auto_skip=True))
                 except Exception as e:
-                    self.log('warning',f'captcha recognize err {type(e)} {str(e)}')
+                    self.log('warning',f'captcha recognize error {type(e)} {str(e)}')
+                    tl.after_idle(skip_captcha)
 
         entry=ttk.Entry(tl,textvariable=captcha_var)
         entry.bind('<Return>',lambda _:submit_captcha())
