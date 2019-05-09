@@ -9,7 +9,7 @@ High Efficiency Elective Dominator for PKU students
 ## Usage
 
 1. Launch `main`
-2. Input username and password *(password will be shown in plain text)*
+2. Input username and password
 3. Click `Add Bot` for one or several times
 4. Click `Refresh`
 5. Double-click in the course list to elect it or add it to wishlist
