@@ -249,16 +249,12 @@ class Orchestrator:
             if self.auto_on:
                 self.refresh()
 
-        auto_captcha_var=StringVar(tk,value='off')
+        auto_captcha_var=StringVar(tk,value='on')
         auto_refresh_var=StringVar(tk,value='off')
         verbose_var=StringVar(tk,value='on' if Logger.VERBOSE else 'off')
 
         Button(btnpanel,text='Add Bot',command=add_bot).grid(row=0,column=0)
-        if captcha.loaded:
-            Checkbutton(btnpanel,text='Auto Captcha',variable=auto_captcha_var,onvalue='on',offvalue='off').grid(row=0,column=1)
-            auto_captcha_var.set('on')
-        else:
-            Checkbutton(btnpanel,text='Auto Captcha',variable=auto_captcha_var,onvalue='on',offvalue='off',state=['disabled']).grid(row=0,column=1)
+        Checkbutton(btnpanel,text='Auto Captcha',variable=auto_captcha_var,onvalue='on',offvalue='off').grid(row=0,column=1)
         Button(btnpanel,text='Refresh',command=self.refresh).grid(row=0,column=2)
         Checkbutton(btnpanel,text='Auto Refresh',command=ref_changed,variable=auto_refresh_var,onvalue='on',offvalue='off').grid(row=0,column=3)
 

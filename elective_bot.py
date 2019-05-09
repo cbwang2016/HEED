@@ -6,6 +6,7 @@ import io
 import time
 import threading
 import tkinter
+import numpy as np
 from tkinter import ttk, messagebox
 from bs4 import BeautifulSoup
 from PIL import Image, ImageTk
@@ -49,8 +50,6 @@ class Logger:
 
 
 class ElectiveBot:
-    captcha_recognizer=captcha.CaptchaRecognizer()
-
     def __init__(self,name):
         self.s=requests.Session()
         self.s.verify=False
@@ -257,10 +256,9 @@ class ElectiveBot:
             tl.update_idletasks()
             if should_autoinput:
                 try:
-                    result=self.captcha_recognizer.recognize(img)
-                    assert len(result.code)==4, f'bad recognized result {result.code}'
-                    self.log('debug',f'recognized captcha {result.code}')
-                    captcha_var.set(result.code)
+                    result=captcha.recognize(np.array(img.convert('L')))
+                    self.log('debug',f'recognized captcha {result}')
+                    captcha_var.set(result)
                     tl.after_idle(lambda: submit_captcha(auto_skip=True))
                 except Exception as e:
                     self.log('warning',f'captcha recognize error {type(e)} {str(e)}')
@@ -269,7 +267,7 @@ class ElectiveBot:
         entry=ttk.Entry(tl,textvariable=captcha_var)
         entry.bind('<Return>',lambda _:submit_captcha())
         entry.pack()
-        ttk.Button(tl,text='Skip',command=skip_captcha).pack()
+        ttk.Button(tl,text='Next Captcha',command=skip_captcha).pack()
 
         entry.focus_set()
         tl.after_idle(skip_captcha)
